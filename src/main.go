@@ -33,22 +33,22 @@ func main() {
 
 	startTime := time.Now()
 
-	// 1. Parse file menjadi struct Model
+	// Parse file menjadi struct Model
 	parsedModel, err := file.ParseOBJ(filePath)
 	if err != nil {
 		fmt.Printf("Gagal memproses file .obj: %v\n", err)
 		os.Exit(1)
 	}
 
-	// 2. Mulai Voxelization (Kita abaikan rootNode dengan '_', ambil stats-nya saja!)
+	// Voxelization
 	_, stats := voxelization.StartVoxelization(parsedModel, maxDepth)
 
-	// 3. Kalkulasi total instan langsung dari stats.LeafNodes
+	// Total face dan vertex hasil
 	totalVoxels := len(stats.LeafNodes)
 	totalVertices := totalVoxels * 8
 	totalFaces := totalVoxels * 12
 
-	// 4. Manajemen Output Path
+	// Output
 	baseName := filepath.Base(filePath)
 	ext := filepath.Ext(baseName)
 	queryFile := strings.TrimSuffix(baseName, ext)
@@ -62,7 +62,6 @@ func main() {
 	outputFileName := fmt.Sprintf("%sSol_%d.obj", queryFile, maxDepth)
 	outputPath := filepath.Join("test", outputFileName)
 	
-	// 5. Tulis file langsung menggunakan daftar daun (LeafNodes)
 	err = file.WriteObj(outputPath, stats.LeafNodes)
 	if err != nil {
 		fmt.Printf("Gagal menyimpan file .obj: %v\n", err)
@@ -71,7 +70,6 @@ func main() {
 
 	elapsedTime := time.Since(startTime)
 
-	// 6. Cetak Statistik dengan elegan
 	fmt.Println("\n=== Statistik Voxelization ===")
 	fmt.Printf("Banyaknya voxel yang terbentuk: %d\n", totalVoxels)
 	fmt.Printf("Banyaknya vertex yang terbentuk: %d\n", totalVertices)
