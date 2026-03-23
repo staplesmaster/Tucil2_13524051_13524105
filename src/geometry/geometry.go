@@ -2,7 +2,7 @@ package geometry
 
 import (
 	"math"
-	"src/models"
+	"github.com/staplesmaster/Tucil2_13524051_13524105/src/models"
 )
 
 func GetIntersectingFaces(cube models.Cube, vertices []models.Vertex, faces []models.Face, parentFaceIndices []int) []int {

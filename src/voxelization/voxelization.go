@@ -3,8 +3,8 @@ package voxelization
 import (
 	"math"
 	"sync"
-	"src/models"
-	"src/geometry"
+	"github.com/staplesmaster/Tucil2_13524051_13524105/src/models"
+	"github.com/staplesmaster/Tucil2_13524051_13524105/src/geometry"
 )
 
 func StartVoxelization(parsedModel *models.Model, maxDepth int) (*models.OctreeNode, *models.OctreeStats) {

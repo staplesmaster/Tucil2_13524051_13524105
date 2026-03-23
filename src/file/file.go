@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"src/models"
+	"github.com/staplesmaster/Tucil2_13524051_13524105/src/models"
 	"strconv"
 	"strings"
 )
