@@ -9,11 +9,7 @@ import (
 	"strings"
 )
 
-func WriteObj(filename string, root *models.OctreeNode) error {
-	// Ambil semua kubus dari pohon Octree
-	var voxels []models.Cube
-	extractVoxels(root, &voxels)
-
+func WriteObj(filename string, leaves []*models.OctreeNode) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		return fmt.Errorf("gagal membuat file output: %v", err)
@@ -27,7 +23,8 @@ func WriteObj(filename string, root *models.OctreeNode) error {
 	vertexOffset := 1
 
 	// Satu kubus terdiri dari 8 vertex dan 12 face
-	for _, cube := range voxels {
+	for _, node := range leaves {
+		cube := node.CurrentCube
 		h := cube.Size / 2
 		cx, cy, cz := cube.Center.X, cube.Center.Y, cube.Center.Z
 
@@ -147,19 +144,4 @@ func ParseOBJ(inputPath string) (*models.Model, error){
 
 	return &model, nil
 
-}
-
-func extractVoxels(node *models.OctreeNode, voxels *[]models.Cube) {
-	if node == nil || !node.IsVoxel {
-		return
-	}
-
-	if node.IsLeaf {
-		*voxels = append(*voxels, node.CurrentCube)
-		return
-	}
-
-	for i := 0; i < 8; i++ {
-		extractVoxels(node.Children[i], voxels)
-	}
 }
