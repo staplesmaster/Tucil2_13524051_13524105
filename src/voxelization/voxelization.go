@@ -126,7 +126,7 @@ func divideConquer(cube models.Cube, parsedModel *models.Model, parentFaces []in
 					go func(idx int, c models.Cube) {
 						defer wg.Done()
 						// Rekursi untuk setiap anak, lalu simpan ke array Children
-						// Anak-anaknya hanya memroses validFaces milik parent (node.Face)
+						// Anak-anaknya hanya memproses validFaces milik parent (node.Face)
 						node.Children[idx] = divideConquer(c, parsedModel, node.Face, currentDepth+1, maxDepth, stats)
 					}(childIndex, subCube)
 

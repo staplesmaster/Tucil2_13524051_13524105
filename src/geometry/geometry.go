@@ -21,7 +21,7 @@ func GetIntersectingFaces(cube models.Cube, vertices []models.Vertex, faces []mo
         v2 = sub(v2, cube.Center)
 
         // Tes 1, bungkus segitiga dengan balok
-        // Cek apakah kubus berada di dalam balok pembungkus
+        // Cek apakah kubus dibungkus atau membungkus balok
         minX, maxX := findMinMax(v0.X, v1.X, v2.X)
         if minX > h || maxX < -h { continue }
 
