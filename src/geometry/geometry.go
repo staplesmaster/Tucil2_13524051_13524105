@@ -5,10 +5,12 @@ import (
 	"src/models"
 )
 
-func isIntersecting(cube models.Cube, vertices []models.Vertex, faces []models.Face) bool {
+func GetIntersectingFaces(cube models.Cube, vertices []models.Vertex, faces []models.Face, parentFaceIndices []int) []int {
     h := cube.Size / 2
+    var validFaces []int
 
-    for _, face := range faces {
+    for _, faceIdx := range parentFaceIndices {
+        face := faces[faceIdx]
         v0 := vertices[face.V1-1]
         v1 := vertices[face.V2-1]
         v2 := vertices[face.V3-1]
@@ -60,10 +62,10 @@ func isIntersecting(cube models.Cube, vertices []models.Vertex, faces []models.F
         
         if isSeparated { continue } 
 
-        return true
+        validFaces = append(validFaces, faceIdx)
     }
 
-    return false
+    return validFaces
 }
 
 
