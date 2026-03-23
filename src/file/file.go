@@ -118,7 +118,7 @@ func ParseOBJ(inputPath string) (*models.Model, error){
 			model.Faces = append(model.Faces, models.Face{V1: v1, V2: v2, V3: v3})
 
 		} else {
-			return nil, fmt.Errorf("Format input tidak valid di baris %d", lineNum)
+			continue
 		}
 	}
 

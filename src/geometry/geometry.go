@@ -46,7 +46,7 @@ func GetIntersectingFaces(cube models.Cube, vertices []models.Vertex, faces []mo
 
         // Tes 3
         // Cek apakah kubus A benar-benar berpotongan dengan segitiga (bukan bidang perluasan seperti di Tes 2)
-        edges := []models.Vertex{e0, e1, e2}
+        edges := [3]models.Vertex{e0, e1, e2}
         isSeparated := false
         
         for _, e := range edges {
