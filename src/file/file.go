@@ -11,23 +11,25 @@ import (
 )
 
 func WriteObj(filePath string, maxDepth int, leaves []*models.OctreeNode) (outputPath string, err error) {
+	red := "\033[31m"
+    reset := "\033[0m" 
 
 	baseName := filepath.Base(filePath)
 	ext := filepath.Ext(baseName)
 	queryFile := strings.TrimSuffix(baseName, ext)
 
-	err = os.MkdirAll(resolveTestDir("result"), os.ModePerm)
+	err = os.MkdirAll(resolveTestDir(), os.ModePerm)
 	if err != nil {
-		return "", fmt.Errorf("gagal membuat file output: %v", err)
+		return "", fmt.Errorf(red + "Error : gagal membuat file output: %v" + reset, err)
 	}
 
 	outputFileName := fmt.Sprintf("%s-Voxelization_Result_Depth-%d.obj", queryFile, maxDepth)
-	outputPath = filepath.Join(resolveTestDir("result"), outputFileName)	
+	outputPath = filepath.Join(resolveTestDir(), outputFileName)	
 	
 
 	file, err := os.Create(outputPath)
 	if err != nil {
-		return "", fmt.Errorf("gagal membuat file output: %v", err)
+		return "", fmt.Errorf(red + " Error : gagal membuat file output: %v" + reset, err)
 	}
 	defer file.Close()
 
@@ -82,45 +84,59 @@ func WriteObj(filePath string, maxDepth int, leaves []*models.OctreeNode) (outpu
 }
 
 func ValidateInput () (inputPath string, maxDepth int){
+	red := "\033[31m"
+    reset := "\033[0m" 
+	yellow := "\033[33m"
+
 	for {
 		fmt.Print("Masukan nama file yang ada di /test (misal : cow.obj) : ")
 		n, _ := fmt.Scan(&inputPath)
 		if (n != 1){
-			fmt.Println("Error : Masukan nama file tidak valid")
+			fmt.Println(red + "Error : Masukan nama file tidak valid" + reset)
 			continue
 		}
 		if !strings.HasSuffix(strings.ToLower(inputPath), ".obj"){
-			fmt.Println(("Error : File tidak berekstensi .obj"))
+			fmt.Println((red + "Error : File tidak berekstensi .obj" + reset))
+			continue
+		}
+		checker := filepath.Join(resolveTestDir(), inputPath)
+		_, err := os.Open(checker)
+		if err != nil {
+			fmt.Printf(red + "Error : Tidak ada file yang bernama %s\n" + reset, inputPath)
 			continue
 		}
 		break
 
 	}
 	for {
-		fmt.Print("Masukan max depth voxelization (rentang valid [1,12] inklusif) : ")
+		fmt.Print("Masukan max depth voxelization ")
+		fmt.Print(yellow + "Notes : Semakin besar semakin lama waktu menunggu" + reset)
+		fmt.Print(": ")
 		n, _ := fmt.Scan(&maxDepth)
 		if (n != 1){
-			fmt.Println("Error : Masukan 1 angka dari [1,12]")
+			fmt.Println(red + "Error : Masukan hanya 1 angka > 1" + reset )
 			continue
 		}
-		if maxDepth < 1 || maxDepth > 12{
-			fmt.Println(("Error : Masukan hanya boleh dari rentang [1,12]"))
+		if maxDepth < 1{
+			fmt.Println(red + ("Error : Masukan hanya boleh angka lebih besar dari 1") + reset)
 			continue
 		}
 		break
 
 	}
 	temp := inputPath
-	inputPath = filepath.Join(resolveTestDir("test"), temp)
+	inputPath = filepath.Join(resolveTestDir(), temp)
 	 
 	return inputPath, maxDepth
 	
 }
 
 func ParseOBJ(inputPath string) (*models.Model, error){
+	red := "\033[31m"
+    reset := "\033[0m" 
 	file, err := os.Open(inputPath)
 	if err != nil {
-		return nil, fmt.Errorf("Gagal membuka file %v", err)
+		return nil, fmt.Errorf(red + "Error : Gagal membuka file %v" + reset, err)
 	}
 	defer file.Close()
 
@@ -141,7 +157,7 @@ func ParseOBJ(inputPath string) (*models.Model, error){
 		// Membaca vertex
 		if parts[0] == "v" {
 			if len(parts) != 4 {
-				return nil, fmt.Errorf("Format vertex tidak valid di baris %d: %s", lineNum, line)
+				return nil, fmt.Errorf(red + "Error : Format vertex tidak valid di baris %d: %s" + reset, lineNum, line)
 			}
 			
 			x, errX := strconv.ParseFloat(parts[1], 64)
@@ -149,7 +165,7 @@ func ParseOBJ(inputPath string) (*models.Model, error){
 			z, errZ := strconv.ParseFloat(parts[3], 64)
 			
 			if errX != nil || errY != nil || errZ != nil {
-				return nil, fmt.Errorf("Tipe data koordinat tidak valid di baris %d: %s", lineNum, line)
+				return nil, fmt.Errorf(red + "Error : Tipe data koordinat tidak valid di baris %d: %s" + reset, lineNum, line)
 			}
 			
 			model.Vertices = append(model.Vertices, models.Vertex{X: x, Y: y, Z: z})
@@ -157,7 +173,7 @@ func ParseOBJ(inputPath string) (*models.Model, error){
 		// Membaca face
 		} else if parts[0] == "f" {
 			if len(parts) != 4 {
-				return nil, fmt.Errorf("Format face tidak valid di baris %d: %s", lineNum, line)
+				return nil, fmt.Errorf(red + "Error : Format face tidak valid di baris %d: %s" + reset, lineNum, line)
 			}
 			
 			v1, err1 := strconv.Atoi(parts[1])
@@ -165,7 +181,7 @@ func ParseOBJ(inputPath string) (*models.Model, error){
 			v3, err3 := strconv.Atoi(parts[3])
 			
 			if err1 != nil || err2 != nil || err3 != nil {
-				return nil, fmt.Errorf("Tipe data indeks face tidak valid di baris %d: %s", lineNum, line)
+				return nil, fmt.Errorf(red + "Error : Tipe data indeks face tidak valid di baris %d: %s" + reset, lineNum, line)
 			}
 			
 			model.Faces = append(model.Faces, models.Face{V1: v1, V2: v2, V3: v3})
@@ -176,22 +192,22 @@ func ParseOBJ(inputPath string) (*models.Model, error){
 	}
 
 	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("Error saat membaca isi file %v", err)
+		return nil, fmt.Errorf(red + "Error saat membaca isi file %v" + reset, err)
 	}
 
 	if len(model.Vertices) == 0 && len(model.Faces) == 0 {
-		return nil, fmt.Errorf("File kosong sehingga tidak valid")
+		return nil, fmt.Errorf("%s", red+"Error : File kosong sehingga tidak valid"+reset)
 	}
 
 	if len(model.Vertices) < 3 || len(model.Faces) == 0 {
-		return nil, fmt.Errorf("File tidak valid! Setidaknya harus ada tiga vertex dan satu face")
+		return nil, fmt.Errorf("%s", red+"Error : File tidak valid! Setidaknya harus ada tiga vertex dan satu face"+reset)
 	}
 
 	for _, f := range model.Faces {
         if f.V1 < 1 || f.V1 > len(model.Vertices) ||
            f.V2 < 1 || f.V2 > len(model.Vertices) ||
            f.V3 < 1 || f.V3 > len(model.Vertices) {
-            return nil, fmt.Errorf("File tidak valid: face memiliki indeks vertex yang tidak ada")
+            return nil, fmt.Errorf("%s", red + "Error : File tidak valid: face memiliki indeks vertex yang tidak ada" + reset)
         }
     }
 
@@ -200,53 +216,28 @@ func ParseOBJ(inputPath string) (*models.Model, error){
 }
 
 
-func resolveTestDir(types string) string {
+func resolveTestDir() string {
     candidates := []string{}
 
-    if (types == "test"){
-		if exePath, err := os.Executable(); err == nil {
-			exeDir := filepath.Dir(exePath)
-			candidates = append(candidates,
-				filepath.Join(exeDir, "test"),      // test di folder binary
-				filepath.Join(exeDir, "..", "test"), // test di parent binary
-			)
-   		}
+    if exePath, err := os.Executable(); err == nil {
+		exeDir := filepath.Dir(exePath)
+		candidates = append(candidates,
+			filepath.Join(exeDir, "test"),      // test di folder binary
+			filepath.Join(exeDir, "..", "test"), // test di parent binary
+		)
+	   }
 
-		if cwd, err := os.Getwd(); err == nil {
-			candidates = append(candidates,
-				filepath.Join(cwd, "test"),
-				filepath.Join(cwd, "..", "test"), // saat go run dari src
-			)
-		}
-
-		for _, dir := range candidates {
-			if info, err := os.Stat(dir); err == nil && info.IsDir() {
-				return dir
-			}
-    	}
+	if cwd, err := os.Getwd(); err == nil {
+		candidates = append(candidates,
+			filepath.Join(cwd, "test"),
+			filepath.Join(cwd, "..", "test"), // saat go run dari src
+		)
 	}
 
-	if types == "result"{
-		if exePath, err := os.Executable(); err == nil {
-			exeDir := filepath.Dir(exePath)
-			candidates = append(candidates,
-				filepath.Join(exeDir, "result"),      // result di folder binary
-				filepath.Join(exeDir, "..", "result"), // result di parent binary
-			)
-   		}
-
-		if cwd, err := os.Getwd(); err == nil {
-			candidates = append(candidates,
-				filepath.Join(cwd, "result"),
-				filepath.Join(cwd, "..", "result"), // saat go run dari src
-			)
+	for _, dir := range candidates {
+		if info, err := os.Stat(dir); err == nil && info.IsDir() {
+			return dir
 		}
-
-		for _, dir := range candidates {
-			if info, err := os.Stat(dir); err == nil && info.IsDir() {
-				return dir
-			}
-    	}
 	}
 
 	

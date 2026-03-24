@@ -12,8 +12,7 @@ Tucil2_13524051_13524105/
 ├── README.md
 ├── bin/                  # binary hasil build
 ├── docs/
-│   └── voxelization      # dokumentasi/gambar pendukung
-├── result/               # output hasil konversi
+│   └── Laporan Tucil 2 - 13524103 - 13524105      
 ├── src/
 │   ├── main.go           # entry point program
 │   ├── file/
@@ -24,11 +23,8 @@ Tucil2_13524051_13524105/
 │   │   └── models.go     # struktur data model
 │   └── voxelization/
 │       └── voxelization.go  # algoritma octree voxelization
+│ 
 ├── test/                 # data uji
-└── Viewer/
-   ├── viewer.html       # viewer interaktif (bonus)
-   ├── viewer.css
-   └── viewer.js
 ```
 
 ## Algoritma Divide and Conquer
@@ -68,15 +64,23 @@ Total 13 sumbu pengujian.
 
 - Go 1.18+
 
-### Menjalankan di Linux
-
-#### Build
+### Clone Repository
 
 ```bash
-go build -o voxelizer .
+git clone https://github.com/staplesmaster/Tucil2_13524051_13524105.git
+cd Tucil2_13524051_13524105
 ```
 
-#### Run
+### Menjalankan di Linux
+
+#### Build & run
+Menjalankan di root folder 
+```bash
+go build -o voxelizer ./src
+./voxelizer 
+```
+
+#### Menjalankan di bin
 
 ```bash
 ./voxelizer 
@@ -84,13 +88,14 @@ go build -o voxelizer .
 
 ### Menjalankan di Windows
 
-#### Build (.exe)
+#### Build (.exe) & run
 
 ```powershell
-go build -o voxelizer.exe .
+go build -o voxelizer.exe ./src
+.\voxelizer.exe 
 ```
 
-#### Run
+#### Menjalankan di bin
 
 ```powershell
 .\voxelizer.exe 
