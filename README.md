@@ -12,7 +12,7 @@ Tucil2_13524051_13524105/
 ├── README.md
 ├── bin/                  # binary hasil build
 ├── docs/
-│   └── Laporan Tucil 2 - 13524103 - 13524105      
+│   └── Laporan Tucil 2 - 13524103 - 13524105.pdf
 ├── src/
 │   ├── main.go           # entry point program
 │   ├── file/
