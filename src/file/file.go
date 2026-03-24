@@ -7,12 +7,27 @@ import (
 	"github.com/staplesmaster/Tucil2_13524051_13524105/src/models"
 	"strconv"
 	"strings"
+	"path/filepath"
 )
 
-func WriteObj(filename string, leaves []*models.OctreeNode) error {
-	file, err := os.Create(filename)
+func WriteObj(filePath string, maxDepth int, leaves []*models.OctreeNode) (outputPath string, err error) {
+
+	baseName := filepath.Base(filePath)
+	ext := filepath.Ext(baseName)
+	queryFile := strings.TrimSuffix(baseName, ext)
+
+	err = os.MkdirAll(resolveTestDir("result"), os.ModePerm)
 	if err != nil {
-		return fmt.Errorf("gagal membuat file output: %v", err)
+		return "", fmt.Errorf("gagal membuat file output: %v", err)
+	}
+
+	outputFileName := fmt.Sprintf("%s-Voxelization_Result_Depth-%d.obj", queryFile, maxDepth)
+	outputPath = filepath.Join(resolveTestDir("result"), outputFileName)	
+	
+
+	file, err := os.Create(outputPath)
+	if err != nil {
+		return "", fmt.Errorf("gagal membuat file output: %v", err)
 	}
 	defer file.Close()
 
@@ -60,8 +75,47 @@ func WriteObj(filename string, leaves []*models.OctreeNode) error {
 		// Langsung increment 8
 		vertexOffset += 8
 	}
+	
 
-	return nil
+	return outputPath,nil
+
+
+}
+
+func ValidateInput () (inputPath string, maxDepth int){
+	for {
+		fmt.Print("Masukan nama file yang ada di /test (misal : cow.obj) : ")
+		n, _ := fmt.Scan(&inputPath)
+		if (n != 1){
+			fmt.Println("Error : Masukan nama file tidak valid")
+			continue
+		}
+		if !strings.HasSuffix(strings.ToLower(inputPath), ".obj"){
+			fmt.Println(("Error : File tidak berekstensi .obj"))
+			continue
+		}
+		break
+
+	}
+	for {
+		fmt.Print("Masukan max depth voxelization (rentang valid [1,12] inklusif) : ")
+		n, _ := fmt.Scan(&maxDepth)
+		if (n != 1){
+			fmt.Println("Error : Masukan 1 angka dari [1,12]")
+			continue
+		}
+		if maxDepth < 1 || maxDepth > 12{
+			fmt.Println(("Error : Masukan hanya boleh dari rentang [1,12]"))
+			continue
+		}
+		break
+
+	}
+	temp := inputPath
+	inputPath = filepath.Join(resolveTestDir("test"), temp)
+	 
+	return inputPath, maxDepth
+	
 }
 
 func ParseOBJ(inputPath string) (*models.Model, error){
@@ -144,4 +198,58 @@ func ParseOBJ(inputPath string) (*models.Model, error){
 
 	return &model, nil
 
+}
+
+
+func resolveTestDir(types string) string {
+    candidates := []string{}
+
+    if (types == "test"){
+		if exePath, err := os.Executable(); err == nil {
+			exeDir := filepath.Dir(exePath)
+			candidates = append(candidates,
+				filepath.Join(exeDir, "test"),      // test di folder binary
+				filepath.Join(exeDir, "..", "test"), // test di parent binary
+			)
+   		}
+
+		if cwd, err := os.Getwd(); err == nil {
+			candidates = append(candidates,
+				filepath.Join(cwd, "test"),
+				filepath.Join(cwd, "..", "test"), // saat go run dari src
+			)
+		}
+
+		for _, dir := range candidates {
+			if info, err := os.Stat(dir); err == nil && info.IsDir() {
+				return dir
+			}
+    	}
+	}
+
+	if types == "result"{
+		if exePath, err := os.Executable(); err == nil {
+			exeDir := filepath.Dir(exePath)
+			candidates = append(candidates,
+				filepath.Join(exeDir, "result"),      // result di folder binary
+				filepath.Join(exeDir, "..", "result"), // result di parent binary
+			)
+   		}
+
+		if cwd, err := os.Getwd(); err == nil {
+			candidates = append(candidates,
+				filepath.Join(cwd, "result"),
+				filepath.Join(cwd, "..", "result"), // saat go run dari src
+			)
+		}
+
+		for _, dir := range candidates {
+			if info, err := os.Stat(dir); err == nil && info.IsDir() {
+				return dir
+			}
+    	}
+	}
+
+	
+    return candidates[0]
 }

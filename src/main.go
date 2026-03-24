@@ -3,32 +3,16 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
-	"strconv"
-	"strings"
 	"time"
-
-	"github.com/staplesmaster/Tucil2_13524051_13524105/src/voxelization"
+	"path/filepath"
 	"github.com/staplesmaster/Tucil2_13524051_13524105/src/file"
-
+	"github.com/staplesmaster/Tucil2_13524051_13524105/src/voxelization"
 )
 
 func main() {
-	if len(os.Args) != 3 {
-		fmt.Println("Format pemanggilan salah!")
-		fmt.Println("Cara penggunaan: go run main.go <path_file.obj> <kedalaman_maksimum>")
-		os.Exit(1)
-	}
-
-	filePath := os.Args[1]
-
-	maxDepth, err := strconv.Atoi(os.Args[2])
-	if err != nil || maxDepth < 0 {
-		fmt.Println("Error: Kedalaman maksimum harus berupa angka bulat positif")
-		os.Exit(1)
-	}
-
-	fmt.Println("Mulai memproses file:", filePath)
+	filePath, maxDepth :=file.ValidateInput()
+	printFilePath := filepath.Join("test", filepath.Base(filePath))
+	fmt.Println("Mulai memproses file:", printFilePath)
 	fmt.Println("Target kedalaman Octree:", maxDepth)
 
 	startTime := time.Now()
@@ -49,24 +33,14 @@ func main() {
 	totalFaces := totalVoxels * 12
 
 	// Output
-	baseName := filepath.Base(filePath)
-	ext := filepath.Ext(baseName)
-	queryFile := strings.TrimSuffix(baseName, ext)
 
-	err = os.MkdirAll("test", os.ModePerm)
-	if err != nil {
-		fmt.Printf("Gagal membuat folder test: %v\n", err)
-		os.Exit(1)
-	}
+	outputPath, err := file.WriteObj(filePath, maxDepth, stats.LeafNodes)
 
-	outputFileName := fmt.Sprintf("%sSol_%d.obj", queryFile, maxDepth)
-	outputPath := filepath.Join("test", outputFileName)
-	
-	err = file.WriteObj(outputPath, stats.LeafNodes)
 	if err != nil {
 		fmt.Printf("Gagal menyimpan file .obj: %v\n", err)
 		os.Exit(1)
 	}
+
 
 	elapsedTime := time.Since(startTime)
 
@@ -87,5 +61,7 @@ func main() {
 
 	fmt.Printf("Kedalaman octree: %d\n", maxDepth)
 	fmt.Printf("Lama waktu program berjalan: %s\n", elapsedTime)
-	fmt.Printf("Path dimana file .obj disimpan: %s\n", outputPath)
+	printOutputPath := filepath.Join("result", filepath.Base(outputPath))
+	fmt.Printf("Path dimana file .obj disimpan: %s\n", printOutputPath)
 }
+
