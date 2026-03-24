@@ -75,7 +75,6 @@ func WriteObj(filePath string, maxDepth int, leaves []*models.OctreeNode) (outpu
 		// Langsung increment 8
 		vertexOffset += 8
 	}
-	
 
 	return outputPath,nil
 
